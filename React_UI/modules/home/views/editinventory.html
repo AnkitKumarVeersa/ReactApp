@@ -57,7 +57,68 @@
             </span>
         </span>
     </div>
+
+    <label>Comments</label>
+    <textarea class="comment form-control" ng-model="newComment" name="newComment" id="newComment" />
+    <button style='outline: none;' ng-click="saveComment()" class="btn btn-success">Save</button>
+
+
+    <!-- <h1>123{{contents}}</h1> -->
     <div class="commentContainer" ng-repeat="(commentId, comment_value) in contents">
+        <!-- <h1>{{contents}}</h1>> -->
+        <label for="Vendor">{{comment_value.author}}</label>
+        <textarea class="comment form-control" ng-model="comment_value.content" name="Vendor" id="Vendor" required ng-disabled="comment_value.author_id!=globals.currentUser.userId"/>
+        <div ng-show="comment_value.author_id==globals.currentUser.userId">
+            <button style='outline: none;' ng-click="editComment(commentId, comment_value.content)" class="btn btn-success">Update</button>
+            <button style='outline: none;' ng-click="deleteComment(commentId)" class="btn btn-success">Delete</button>
+            <button style='outline: none;' ng-click="showReplyButton(commentId)" class="btn btn-success" ng-show="!isNewReply">Reply</button>
+            <div style="margin-left: 100px; margin-top: 15px" ng-show="isNewReply && commentId==commentID">
+                <textarea class="comment form-control" ng-model="newReply" name="newReply" id="newReply" />
+                <button style='outline: none;' ng-click="hideReplyButton(commentId,newReply)" class="btn btn-success">Save</button>
+            </div>
+        </div>
+
+        <div style="margin-left: 100px" ng-repeat="(commentId, reply) in comment_value.replies">
+            <label for="rep">{{reply[1]}}</label>
+            <textarea class="comment form-control" ng-model="reply[0]" name="rep" id="rep" required disabled/>
+        </div>
+
+        <!-- <div class="reactionsReact">
+            <div>
+               <span ng-show="comment_value.totalReactedCount" class="contentReactionsContainer">
+                    <span ng-show="value.count != 0" class="contentReaction tooltipcontrol" id="control-content-{{commentId}}-react-{{key}}" ng-mouseleave="hideToolTip(commentId)" ng-mouseover='getReactedUsers(commentId, key, false)' ng-repeat="(key, value) in comment_value.contentReactions">
+                        <span class="tooltiptext" id="tooltip-content-{{commentId}}-react-{{key}}">
+                            <div>
+                                <b>
+                                    {{value.name}}
+                                </b>
+                                <div ng-repeat="(key, value) in value.reactedUsers">
+                                    {{value.first_name}} {{value.last_name}}
+                                </div>
+                            </div>
+                        </span>
+                        <span>
+                            {{value.emoji}}
+                        </span>
+                    </span>
+                    <span class="totalReactedCount" ng-click="openContentReactionsPopup(commentId)">{{comment_value.totalReactedCount}}</span>
+                </span>
+                <button style='outline: none;' ng-click="openReactionsContainer(commentId)" class="btn btn-success">React</button>
+                <span class="reactionsContainer" id="reactionsContainer-{{commentId}}">
+                    <span class="reaction tooltipcontrol" ng-click="toggleTriggerReaction(commentId, key, value.contentReactionId, false)" id="content-{{commentId}}-react-{{key}}" data-reaction="{{value.name}}" ng-repeat="(key, value) in comment_value.contentReactions" on-finish-render="ngRepeatCommentFinished">
+                        <span class="tooltiptext">
+                            {{value.name}}
+                        </span>
+                        <span>
+                            {{value.emoji}}
+                        </span>
+                    </span>
+                </span>
+            </div>
+        </div> -->
+    </div>
+
+    <!-- <div class="commentContainer" ng-repeat="(commentId, comment_value) in contents">
         <label for="Vendor">{{comment_value.author}}</label>
         <textarea class="comment form-control" ng-model="comment_value.content" name="Vendor" id="Vendor" required />
 
@@ -94,7 +155,7 @@
                 </span>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <div class="centerContainer">
         <div class="absoluteCenter">

@@ -18,8 +18,13 @@ angular.module('Home')
     ['$scope', '$rootScope', '$http', '$location', '$timeout', 'Helpers',
     function ($scope, $rootScope, $http, $location, $timeout, Helpers) {
     	$scope.loading = true;
-    	$rootScope.globals.currentUser.userId = 1;
+    	// $rootScope.globals.currentUser.userId = 1;
+		$scope.userId = $rootScope.globals.currentUser.userId;
     	$scope.logouttransition = Helpers.logouttransition;
+		$scope.newComment="";
+		$scope.isNewReply=false;
+		$scope.newReply="";
+		$scope.commentID="";
 
     	Helpers.getAllUsers();
     	Helpers.getCurrentUser();
@@ -119,12 +124,15 @@ angular.module('Home')
       	}
       	else {
       		$scope.reactedUsers = {};
-      		$rootScope.globals.currentUser.userId = 1;
-	      	$scope.contentId = 1; // $rootScope.editrecord.productname;
-	      	$scope.contents = {
-	      						'2': {content: 'static comment 1', author_id: 2, author: 'User 2', contentId : '2'},
-	      					    '3': {content: 'static comment 2', author_id: 1, author: 'User 1 again', contentId : '3'}
-	      					};
+	      	$scope.contentId = $rootScope.editrecord.id;
+			Helpers.getComments($scope.contentId,function(comments){
+				let comm = comments.comments
+				$scope.contents = comments;
+			});
+	      	// $scope.contents = {
+	      	// 					'2': {content: 'static comment 1', author_id: 2, author: 'User 2', contentId : '2'},
+	      	// 				    '3': {content: 'static comment 2', author_id: 1, author: 'User 1 again', contentId : '3'}
+	      	// 				};
 
 	      	// load post reactions
 	        Helpers.getContentReactions($scope.contentId, function(contentReactions, totalReactedCount) {
@@ -141,20 +149,20 @@ angular.module('Home')
 	        });
 
 	        // load comment reactions
-			Object.keys($scope.contents).forEach(function(key) {
-		        Helpers.getContentReactions(key, function(contentReactions, totalReactedCount) {
-		        	$scope.contents[key].contentReactions = contentReactions;
-		        	$scope.contents[key].totalReactedCount = totalReactedCount;
+			// Object.keys($scope.contents).forEach(function(key) {
+		    //     Helpers.getContentReactions(key, function(contentReactions, totalReactedCount) {
+		    //     	$scope.contents[key].contentReactions = contentReactions;
+		    //     	$scope.contents[key].totalReactedCount = totalReactedCount;
 
-		        	$scope.$on('ngRepeatCommentFinished', function(ngRepeatFinishedEvent) {
-			        	Object.keys(contentReactions).forEach(function(reactionKey) {
-			        		if(contentReactions[reactionKey].currUserReacted > 0){
-			        			$('#content-'+key+'-react-'+reactionKey).addClass('selected');
-			        		}
-			        	});
-		        	});
-		        });
-            });
+		    //     	$scope.$on('ngRepeatCommentFinished', function(ngRepeatFinishedEvent) {
+			//         	Object.keys(contentReactions).forEach(function(reactionKey) {
+			//         		if(contentReactions[reactionKey].currUserReacted > 0){
+			//         			$('#content-'+key+'-react-'+reactionKey).addClass('selected');
+			//         		}
+			//         	});
+		    //     	});
+		    //     });
+            // });
 
 	        $("#dimmer").click(function(){
 				$('.reactionsContainer').removeClass('display');
@@ -231,6 +239,52 @@ angular.module('Home')
         	// $scope.popupContentReactions = isPost ? Object.assign({}, $scope.contentReactions) : Object.assign({}, $scope.contents[contentId].contentReactions);
         	$scope.getReactedUsersPopup('All', $scope.popupContentReactions);
         };
+
+		$scope.showReplyButton=function(id){
+			$scope.isNewReply=true;	
+			$scope.newReply="";
+			$scope.commentID=id;
+		};
+
+		$scope.hideReplyButton=function(commentId, repl){
+			$scope.isNewReply=false;	
+			if(!repl) {
+				return;
+			}
+			Helpers.saveComments($scope.contentId, repl, $rootScope.globals.currentUser.userId, commentId, function(id){
+			});
+		};
+
+		$scope.saveComment=function(){
+			if(!$scope.newComment) {
+				return;
+			}
+			Helpers.saveComments($scope.contentId, $scope.newComment, $rootScope.globals.currentUser.userId, nil, function(id){
+				// Helpers.getComments($scope.contentId,function(comments){
+				// 	let comm = comments.comments
+				// 	$scope.contents = {comm};
+				// 	$scope.newComment="";
+				// });
+			});
+		};
+
+		$scope.deleteComment=function(id){
+			Helpers.deleteComments(id,function(id){
+				// Helpers.getComments($scope.contentId,function(comments){
+				// 	let comm = comments.comments
+				// 	$scope.contents = {comm};
+				// });
+			});
+		};
+
+		$scope.editComment=function(id, comment){
+			Helpers.editComments(id,comment,function(id){
+				// Helpers.getComments($scope.contentId,function(comments){
+				// 	let comm = comments.comments
+				// 	$scope.contents = {comm};
+				// });
+			});
+		};
 
         $scope.toggleTriggerReaction = function (contentId, reactionId, contentReactionId, isPost=false) {
         	if(!$scope.dataLoading) {

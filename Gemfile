@@ -9,6 +9,10 @@ end
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 6.1.7.2', '>= 6.1.7.2'
 
+gem 'rabl-rails', '~> 0.6.0'
+
+gem 'responders'
+
 gem 'coffee-script-source', '1.8.0'
 
 # Use sqlite3 as the database for Active Record

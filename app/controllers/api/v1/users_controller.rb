@@ -1,6 +1,7 @@
 module Api
 	module V1
 		class UsersController < ApplicationController
+			respond_to :json
 			def search
 				user = User.find_by_username(params[:username])
 				if(user)
@@ -9,20 +10,22 @@ module Api
 				end
 
 			   if (user && user.password == params[:password])
-			      render json: {success: 1, manager: @role.name == 'Store Manager'}, status: :ok
+			      render json: {success: 1, manager: @role.name == 'Store Manager', userId: user.id}, status: :ok
 			   else
 			      render json: {success: 0, message: 'Username or password is incorrect'}, status: :ok
 			   end
 			end
 
 			def index
-				user = User.all
-				render json: {users: user}
+				@user = User.all
+				@user 
+				# render json: {users: user}
 			end
 
 			def show
-				user1 = User.find(params[:id])
-				render json: {user: user1}
+				@user = User.find(params[:id])
+				byebug
+				@user
 			end
 
 			def content_reaction
@@ -33,6 +36,16 @@ module Api
 			def reactions
 				rec = Reaction.all
 				render json: {reactions: rec}
+			end
+
+			def save_content_reaction
+				user_content_reaction = Usercontentreaction.new(user_id: params[:user_id], inventory_id: params[:content_id], reaction_id: params[:reaction_id])
+				user_content_reaction.save
+			end
+
+			def delete_content_reaction
+				user = Usercontentreaction.where("user_id = ? and reaction_id = ? and inventory_id = ?", params[:user_id], params[:reaction_id], params[:content_id])
+				Usercontentreaction.find_by(id: user.ids[0]).destroy
 			end
 
 		end
